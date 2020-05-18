@@ -1,0 +1,145 @@
+<head>
+    {#    <script src="{{ asset('assets/vendor/jquery/jquery.min.js') }}"></script>#}
+</head>
+<body>
+<div class="form-example">
+    <div id="notfound" class="hidden" value="0"></div>
+    <div id="chat"></div>
+    <br>
+    <label id="writing" text="Escribiendo..." style="visibility: hidden;">Escribiendo...</label>
+{#    <label id="blank" text="" style="visibility: visible;"></label>#}
+    <br>
+    <input type="text" id="txtPregunta">
+    <button id="enviar" onclick="enviarClick()">Enviar</button>
+    <br>
+    <button id="limpiar" onclick="limpiarClick()">Limpiar</button>
+</div>
+
+{#<script src="https://code.jquery.com/jquery-3.3.1.js"></script>#}
+</body>
+
+<script>
+// function myFunction() {
+    var txtPregunta,
+        seccEscribiendo,
+        btnEnviar,
+        seccBlank,
+        seccChat
+    ;
+
+    txtPregunta = document.getElementById('txtPregunta');
+    seccEscribiendo = document.getElementById('writing');
+    btnEnviar = document.getElementById('enviar');
+    seccBlank = document.getElementById('blank');
+    seccChat = document.getElementById('chat');
+
+    function ponerTexto(texto){
+        var divSecc = document.createElement("div");
+        var txtInsert = document.createTextNode(texto);
+        divSecc.appendChild(txtInsert);
+        seccChat.appendChild(divSecc);
+        txtPregunta.value = '';
+        txtPregunta.focus();
+    }
+
+    function enviarPregunta(cad, numNotfound){
+        mostrarEscribiendo();
+        var url = '/ask?val='+cad+'&nf='+numNotfound;
+        var xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            console.log('this.readyState: '+ this.readyState);
+            console.log('this.status:'+this.status);
+            if (this.readyState == 4 && this.status == 200) {
+                var output = JSON.parse(this.responseText);
+                document.getElementById("chat").innerHTML += output.data;
+                if (output.notfound == 0)
+                {
+                    document.getElementById("notfound").setAttribute("value", 0);
+                }else{
+                    document.getElementById("notfound").setAttribute("value", output.notfound);
+                }
+                ocultarEscribiendo();
+            }
+        }
+
+        xhttp.open("POST", url, true);
+        xhttp.send(cad);
+    }
+
+    function disableElem(e){
+        if (e != null && e !== 'undefined'){
+            e.setAttribute("disabled", "disabled");
+        }
+    }
+
+    function enableElem(e){
+        if (e != null && e !== 'undefined'){
+            e.removeAttribute("disabled");
+        }
+    }
+
+    function ocultarElem(e){
+        if (e != null && e !== 'undefined'){
+            e.style.visibility = "hidden";
+        }
+    }
+
+    function mostrarElem(e){
+        if (e != null && e !== 'undefined'){
+            e.style.visibility = "visible";
+        }
+    }
+
+    function checkEscribiendo(){
+        if (txtPregunta.value.length > 0){
+            mostrarElem(seccEscribiendo);
+            ocultarElem(seccBlank);
+            enableElem(btnEnviar);
+        }else{
+            ocultarElem(seccEscribiendo);
+            mostrarElem(seccBlank);
+            disableElem(btnEnviar);
+        };
+    }
+
+    function mostrarEscribiendo(){
+            mostrarElem(seccEscribiendo);
+            ocultarElem(seccBlank);
+            disableElem(btnEnviar);
+    }
+
+    function ocultarEscribiendo(){
+            ocultarElem(seccEscribiendo);
+            mostrarElem(seccBlank);
+            enableElem(btnEnviar);
+    }
+
+    function enviarClick(){
+        let cad = txtPregunta.value;
+        if (cad.length > 0 ){
+            ponerTexto(cad);
+            enviarPregunta(cad, document.getElementById("notfound").getAttribute("value"));
+        }
+        //checkEscribiendo();
+    }
+
+    function limpiarClick(){
+        txtPregunta.value = '';
+        seccChat.innerHTML = '';
+        //checkEscribiendo();
+    }
+
+    document.getElementById("txtPregunta").onkeyup=function(e) {
+        if(e.key == '13' || e.key == 'Enter'){
+            enviarClick();
+        }else{
+            //checkEscribiendo();
+        }
+    }
+
+    //checkEscribiendo();
+    txtPregunta.focus();
+// }
+
+</script>

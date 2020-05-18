@@ -1,0 +1,103 @@
+<head>
+{#    <script src="{{ asset('assets/vendor/jquery/jquery.min.js') }}"></script>#}
+</head>
+<body>
+    <div class="form-example">
+        <div id="chat"></div>
+        <br>
+        <label id="writing" text="Escribiendo...">Escribiendo...</label>
+        <label id="blank" text=""></label>
+        <br>
+        <input type="text" id="txtPregunta">
+        <button id="enviar">Enviar</button>
+        <br>
+        <button id="limpiar">Limpiar</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+</body>
+
+<script>
+
+    $(function (events, handler){
+        function enviarPregunta(cad){
+
+            $.ajax({
+                type: "POST",
+                url: "/ask",
+                data: {
+                    val: cad
+                },
+                dataType: "json",
+                success: function(response) {
+                    console.log(response);
+                    ponerTexto(response.ret.output);
+                    // var obj = JSON.parse(response);
+                    // console.log('obj');
+                    // console.log(obj);
+                    // var obj2 = JSON.parse(response.ret);
+                    // console.log('obj2');
+                    // console.log(obj2);
+                }
+            });
+        }
+
+        function disable(e){
+            $(e).attr("disabled","disabled");
+        };
+
+        function ponerTexto(texto){
+            $('#chat').append('<br>');
+            $('#chat').append(texto);
+            $('#txtPregunta').val('');
+            $('#txtPregunta').focus();
+        }
+
+        function mostrarEscribiendo(){
+
+            if ($('#txtPregunta').val().length > 0){
+                //$('#writing').css('visibility','visible');
+                //$('#blank').css('visibility','hidden');
+                $('#writing').show();
+                $('#blank').hide();
+                $('#enviar').prop('disabled', false);
+            }else{
+                //$('#writing').css('visibility','hidden');
+                //$('#blank').css('visibility','visible');
+                $('#writing').hide();
+                $('#blank').show();
+                $('#enviar').prop('disabled', true);
+            };
+
+        };
+
+        $('#txtPregunta').keypress(function(event){
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if(keycode == '13'){
+                $('#enviar').click();
+            }
+        });
+
+        $('#txtPregunta').keyup(function() {
+            mostrarEscribiendo();
+        });
+
+        $('#limpiar').click(function() {
+            $('#chat').html('');
+        });
+
+        $('#enviar').click(function() {
+            let cad = $('#txtPregunta').val();
+            if (cad.length > 0 ){
+                ponerTexto(cad);
+                enviarPregunta(cad);
+            }
+            mostrarEscribiendo();
+        });
+
+        mostrarEscribiendo();
+
+        $('#txtPregunta').focus();
+    });
+
+</script>
