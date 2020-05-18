@@ -6,7 +6,7 @@ namespace App\Service;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-class Poke
+class PokeService
 {
     private $params;
 
